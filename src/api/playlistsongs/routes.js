@@ -3,24 +3,24 @@ const authName = 'songsapp_jwt';
 const routes = (handler) => [
   {
     method: 'POST',
-    path: '/playlists',
-    handler: handler.postPlaylistHandler,
+    path: '/playlists/{id}/songs',
+    handler: handler.postPlaylistSongsHandler,
     options: {
       auth: authName,
     },
   },
   {
     method: 'GET',
-    path: '/playlists',
-    handler: handler.getPlaylistsHandler,
+    path: '/playlists/{id}/songs',
+    handler: handler.getPlaylistSongsHandler,
     options: {
       auth: authName,
     },
   },
   {
     method: 'DELETE',
-    path: '/playlists/{id}',
-    handler: handler.deletePlaylistByIdHandler,
+    path: '/playlists/{id}/songs',
+    handler: handler.deletePlaylistSongByIdHandler,
     options: {
       auth: authName,
     },
