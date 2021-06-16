@@ -2,7 +2,6 @@ const { v4: uuidv4 } = require('uuid');
 const { Pool } = require('pg');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
-const AuthorizationError = require('../../exceptions/AuthorizationError');
 const { songMapDBToModel } = require('../../utils');
 
 class SongsService {
