@@ -33,14 +33,14 @@ const routes = (handler) => [
 //       auth: authName,
 //     },
 //   },
-//   {
-//     method: 'DELETE',
-//     path: '/songs/{id}',
-//     handler: handler.deleteSongByIdHandler,
-//     options: {
-//       auth: authName,
-//     },
-//   },
+  {
+    method: 'DELETE',
+    path: '/playlists/{id}',
+    handler: handler.deletePlaylistByIdHandler,
+    options: {
+      auth: authName,
+    },
+  },
 ];
 
 module.exports = routes;

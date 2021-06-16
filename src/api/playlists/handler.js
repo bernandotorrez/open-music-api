@@ -9,7 +9,7 @@ class SongsHandler {
     this.getPlaylistsHandler = this.getPlaylistsHandler.bind(this);
     // this.getSongByIdHandler = this.getSongByIdHandler.bind(this);
     // this.putSongByIdHandler = this.putSongByIdHandler.bind(this);
-    // this.deleteSongByIdHandler = this.deleteSongByIdHandler.bind(this);
+    this.deletePlaylistByIdHandler = this.deletePlaylistByIdHandler.bind(this);
   }
 
   async postPlaylistHandler(request, h) {
@@ -56,14 +56,47 @@ class SongsHandler {
   }
 
   async getPlaylistsHandler(request, h) {
-    const { id: credentialId } = request.auth.credentials;
     try {
+      const { id: credentialId } = request.auth.credentials;
       const playlists = await this._service.getPlaylists({ owner: credentialId });
       return {
         status: 'success',
         data: {
           playlists,
         },
+      };
+    } catch (error) {
+      if (error instanceof ClientError) {
+        const response = h.response({
+          status: 'fail',
+          message: error.message,
+        });
+        response.code(error.statusCode);
+        return response;
+      }
+
+      // Server ERROR!
+      const response = h.response({
+        status: 'error',
+        message: 'Maaf, terjadi kegagalan pada server kami.',
+      });
+      response.code(500);
+      console.error(error);
+      return response;
+    }
+  }
+
+  async deletePlaylistByIdHandler(request, h) {
+    try {
+      const { id } = request.params;
+      const { id: credentialId } = request.auth.credentials;
+
+      await this._service.verifyPlaylistOwner({ id, owner: credentialId });
+      await this._service.deletePlaylistById(id);
+
+      return {
+        status: 'success',
+        message: 'Playlist berhasil dihapus',
       };
     } catch (error) {
       if (error instanceof ClientError) {
@@ -148,36 +181,6 @@ class SongsHandler {
   //       return response;
   //     }
   //   }
-
-  //   async deleteSongByIdHandler(request, h) {
-  //     try {
-  //       const { id } = request.params;
-  //       await this._service.deleteSongById(id);
-
-  //       return {
-  //         status: 'success',
-  //         message: 'Lagu berhasil dihapus',
-  //       };
-  //     } catch (error) {
-  //       if (error instanceof ClientError) {
-  //         const response = h.response({
-  //           status: 'fail',
-  //           message: error.message,
-  //         });
-  //         response.code(error.statusCode);
-  //         return response;
-  //       }
-
-//       // Server ERROR!
-//       const response = h.response({
-//         status: 'error',
-//         message: 'Maaf, terjadi kegagalan pada server kami.',
-//       });
-//       response.code(500);
-//       console.error(error);
-//       return response;
-//     }
-//   }
 }
 
 module.exports = SongsHandler;
