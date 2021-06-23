@@ -73,13 +73,13 @@ class PlaylistsService {
 
   async verifyPlaylistAccess(playlistId, userId) {
     try {
-      await this.verifyPlaylistOwner(playlistId, userId);
+      await this.verifyPlaylistOwner({ id: playlistId, owner: userId });
     } catch (error) {
       if (error instanceof NotFoundError) {
         throw error;
       }
       try {
-        await this._collaborationService.verifyCollaborator(playlistId, userId);
+        await this._collaborationService.verifyCollaborator({ playlistId, userId });
       } catch {
         throw error;
       }
