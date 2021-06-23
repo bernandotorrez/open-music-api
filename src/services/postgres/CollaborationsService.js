@@ -1,9 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 const { Pool } = require('pg');
 const InvariantError = require('../../exceptions/InvariantError');
-const NotFoundError = require('../../exceptions/NotFoundError');
-const BadRequestError = require('../../exceptions/BadRequestError');
-const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class CollaborationsService {
   constructor() {
@@ -27,56 +24,28 @@ class CollaborationsService {
     return result.rows[0].id;
   }
 
-//   async getPlaylistSongs(id) {
-//     const query = {
-//       text: `select s.id, s.title, s.performer
-//       FROM playlistsongs pls
-//       INNER JOIN playlists pl ON pl.id = pls.playlist_id
-//       INNER JOIN songs s ON s.id = pls.song_id
-//       WHERE pls.playlist_id = $1`,
-//       values: [id],
-//     };
-//     const result = await this._pool.query(query);
-//     return result.rows;
-//   }
-
-//   async deletePlaylistSongById(id, songId) {
-//     const query = {
-//       text: 'DELETE FROM playlistsongs WHERE playlist_id = $1 AND song_id = $2 RETURNING id',
-//       values: [id, songId],
-//     };
-
-//     const result = await this._pool.query(query);
-
-//     if (result.rowCount === 0) {
-//       throw new NotFoundError('Lagu gagal dihapus dari playlist. Id tidak ditemukan');
-//     }
-//   }
-
-  async verifyPlaylistOwner({ id, owner }) {
+  async deleteCollaboration(playlistId, userId) {
     const query = {
-      text: 'select * from playlists where id = $1',
-      values: [id],
+      text: 'DELETE FROM collaborations WHERE playlist_id = $1 AND user_id = $2 RETURNING id',
+      values: [playlistId, userId],
     };
+
     const result = await this._pool.query(query);
-    if (result.rowCount === 0) {
-      throw new NotFoundError('Playlist tidak ditemukan');
-    }
-    const playlist = result.rows[0];
-    if (playlist.owner !== owner) {
-      throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
+
+    if (!result.rows.length) {
+      throw new InvariantError('Kolaborasi gagal dihapus');
     }
   }
 
-  async verifySong(id) {
+  async verifyCollaborator({ playlistId, userId }) {
     const query = {
-      text: 'select * from songs where id = $1',
-      values: [id],
+      text: 'select * from collaborations where playlist_id = $1 AND user_id = $1',
+      values: [playlistId, userId],
     };
     const result = await this._pool.query(query);
 
     if (result.rowCount === 0) {
-      throw new BadRequestError('Lagu tidak ditemukan');
+      throw new InvariantError('Kolaborasi gagal diverifikasi');
     }
   }
 }

@@ -2,12 +2,12 @@ const { v4: uuidv4 } = require('uuid');
 const { Pool } = require('pg');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
-const BadRequestError = require('../../exceptions/BadRequestError');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class PlaylistSongsService {
-  constructor() {
+  constructor(collaborationService) {
     this._pool = new Pool();
+    this._collaborationService = collaborationService;
   }
 
   async addPlaylistSong({ playlistId, songId }) {
@@ -53,9 +53,12 @@ class PlaylistSongsService {
     }
   }
 
-  async verifyPlaylistOwner({ id, owner }) {
+  async verifyPlaylistSongOwner({ id, owner }) {
     const query = {
-      text: 'select * from playlists where id = $1',
+      text: `select *
+      from playlists p
+      left join collaborations c ON p.id = c.playlist_id
+      where p.id = $1 OR c.playlist_id = $1`,
       values: [id],
     };
     const result = await this._pool.query(query);
@@ -64,20 +67,24 @@ class PlaylistSongsService {
       throw new NotFoundError('Playlist tidak ditemukan');
     }
     const playlist = result.rows[0];
-    if (playlist.owner !== owner) {
+
+    if (playlist.owner !== owner && playlist.user_id !== owner) {
       throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
     }
   }
 
-  async verifySong(id) {
-    const query = {
-      text: 'select * from songs where id = $1',
-      values: [id],
-    };
-    const result = await this._pool.query(query);
-
-    if (result.rowCount === 0) {
-      throw new BadRequestError('Lagu tidak ditemukan');
+  async verifyPlaylistSongAccess(playlistId, userId) {
+    try {
+      await this.verifyPlaylistSongOwner(playlistId, userId);
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw error;
+      }
+      try {
+        await this._collaborationService.verifyCollaborator(playlistId, userId);
+      } catch {
+        throw error;
+      }
     }
   }
 }

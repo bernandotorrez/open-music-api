@@ -3,6 +3,7 @@ const { Pool } = require('pg');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 const { songMapDBToModel } = require('../../utils');
+const BadRequestError = require('../../exceptions/BadRequestError');
 
 class SongsService {
   constructor() {
@@ -74,6 +75,18 @@ class SongsService {
 
     if (result.rowCount === 0) {
       throw new NotFoundError('Lagu gagal dihapus. Id tidak ditemukan');
+    }
+  }
+
+  async verifySong(id) {
+    const query = {
+      text: 'select * from songs where id = $1',
+      values: [id],
+    };
+    const result = await this._pool.query(query);
+
+    if (result.rowCount === 0) {
+      throw new BadRequestError('Lagu tidak ditemukan');
     }
   }
 }

@@ -9,16 +9,14 @@ const routes = (handler) => [
       auth: authName,
     },
   },
-//   {
-//     method: 'PUT',
-//     path: '/authentications',
-//     handler: handler.putAuthenticationHandler,
-//   },
-//   {
-//     method: 'DELETE',
-//     path: '/authentications',
-//     handler: handler.deleteAuthenticationHandler,
-//   },
+  {
+    method: 'DELETE',
+    path: '/collaborations',
+    handler: handler.deleteCollaborationHandler,
+    options: {
+      auth: authName,
+    },
+  },
 ];
 
 module.exports = routes;
