@@ -50,7 +50,7 @@ class PlaylistsService {
 
     const result = await this._pool.query(query);
 
-    if (result.rowCount === 0) {
+    if (!result.rowCount) {
       throw new NotFoundError('Playlist gagal dihapus. Id tidak ditemukan');
     }
   }
@@ -62,7 +62,7 @@ class PlaylistsService {
     };
     const result = await this._pool.query(query);
 
-    if (result.rowCount === 0) {
+    if (!result.rowCount) {
       throw new NotFoundError('Playlist tidak ditemukan');
     }
     const playlist = result.rows[0];
