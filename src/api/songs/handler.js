@@ -1,3 +1,6 @@
+const ClientError = require('../../exceptions/ClientError');
+const ServerError = require('../../exceptions/ServerError');
+
 class SongsHandler {
   constructor(service, validator) {
     this._service = service;
@@ -11,67 +14,107 @@ class SongsHandler {
   }
 
   async postSongHandler(request, h) {
-    this._validator.validateSongPayload(request.payload);
-    const {
-      title = 'untitled', year, performer, genre, duration,
-    } = request.payload;
+    try {
+      this._validator.validateSongPayload(request.payload);
+      const {
+        title = 'untitled', year, performer, genre, duration,
+      } = request.payload;
 
-    const songId = await this._service.addSong({
-      title, year, performer, genre, duration,
-    });
+      const songId = await this._service.addSong({
+        title, year, performer, genre, duration,
+      });
 
-    const response = h.response({
-      status: 'success',
-      message: 'Lagu berhasil ditambahkan',
-      data: {
-        songId,
-      },
-    });
-    response.code(201);
-    return response;
+      const response = h.response({
+        status: 'success',
+        message: 'Lagu berhasil ditambahkan',
+        data: {
+          songId,
+        },
+      });
+      response.code(201);
+      return response;
+    } catch (error) {
+      if (error instanceof ClientError) {
+        throw new ClientError(error.message, error.statusCode);
+      } else {
+        throw new ServerError(error.message, error.statusCode);
+      }
+    }
   }
 
-  async getSongsHandler(request, h) {
-    const songs = await this._service.getSongs();
-    return {
-      status: 'success',
-      data: {
-        songs,
-      },
-    };
+  async getSongsHandler() {
+    try {
+      const songs = await this._service.getSongs();
+      return {
+        status: 'success',
+        data: {
+          songs,
+        },
+      };
+    } catch (error) {
+      if (error instanceof ClientError) {
+        throw new ClientError(error.message, error.statusCode);
+      } else {
+        throw new ServerError(error.message, error.statusCode);
+      }
+    }
   }
 
-  async getSongByIdHandler(request, h) {
-    const { id } = request.params;
-    const song = await this._service.getSongById(id);
-    return {
-      status: 'success',
-      data: {
-        song,
-      },
-    };
+  async getSongByIdHandler(request) {
+    try {
+      const { id } = request.params;
+      const song = await this._service.getSongById(id);
+      return {
+        status: 'success',
+        data: {
+          song,
+        },
+      };
+    } catch (error) {
+      if (error instanceof ClientError) {
+        throw new ClientError(error.message, error.statusCode);
+      } else {
+        throw new ServerError(error.message, error.statusCode);
+      }
+    }
   }
 
-  async putSongByIdHandler(request, h) {
-    this._validator.validateSongPayload(request.payload);
-    const { id } = request.params;
+  async putSongByIdHandler(request) {
+    try {
+      this._validator.validateSongPayload(request.payload);
+      const { id } = request.params;
 
-    await this._service.editSongById(id, request.payload);
+      await this._service.editSongById(id, request.payload);
 
-    return {
-      status: 'success',
-      message: 'Lagu berhasil diperbarui',
-    };
+      return {
+        status: 'success',
+        message: 'Lagu berhasil diperbarui',
+      };
+    } catch (error) {
+      if (error instanceof ClientError) {
+        throw new ClientError(error.message, error.statusCode);
+      } else {
+        throw new ServerError(error.message, error.statusCode);
+      }
+    }
   }
 
-  async deleteSongByIdHandler(request, h) {
-    const { id } = request.params;
-    await this._service.deleteSongById(id);
+  async deleteSongByIdHandler(request) {
+    try {
+      const { id } = request.params;
+      await this._service.deleteSongById(id);
 
-    return {
-      status: 'success',
-      message: 'Lagu berhasil dihapus',
-    };
+      return {
+        status: 'success',
+        message: 'Lagu berhasil dihapus',
+      };
+    } catch (error) {
+      if (error instanceof ClientError) {
+        throw new ClientError(error.message, error.statusCode);
+      } else {
+        throw new ServerError(error.message, error.statusCode);
+      }
+    }
   }
 }
 

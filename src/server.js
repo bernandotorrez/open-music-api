@@ -35,6 +35,7 @@ const collaborations = require('./api/collaborations');
 const CollaborationsService = require('./services/postgres/CollaborationsService');
 const CollaborationsValidator = require('./validator/collaborations');
 const ClientError = require('./exceptions/ClientError');
+const ServerError = require('./exceptions/ServerError');
 
 // Exports
 const _exports = require('./api/exports');
@@ -148,6 +149,17 @@ const init = async () => {
         message: response.message,
       });
       newResponse.code(response.statusCode);
+      return newResponse;
+    }
+
+    if (response instanceof ServerError) {
+      // Server ERROR!
+      const newResponse = h.response({
+        status: 'error',
+        message: 'Maaf, terjadi kegagalan pada server kami.',
+      });
+      newResponse.code(500);
+      console.error(response);
       return newResponse;
     }
     return response.continue || response;
