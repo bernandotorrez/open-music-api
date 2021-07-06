@@ -3,8 +3,8 @@ const authName = 'songsapp_jwt';
 const routes = (handler) => [
   {
     method: 'POST',
-    path: '/export/notes',
-    handler: handler.postExportNotesHandler,
+    path: '/exports/playlists/{playlistId}',
+    handler: handler.postExportSongsFromPlaylistHandler,
     options: {
       auth: authName,
     },
