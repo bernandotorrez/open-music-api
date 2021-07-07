@@ -46,7 +46,7 @@ class PlaylistSongsService {
       };
       const result = await this._pool.query(query);
 
-      await this._cacheService.set(`playlistSongs:${owner}`, JSON.stringify(result));
+      await this._cacheService.set(`playlistSongs:${owner}`, JSON.stringify(result.rows));
 
       return result.rows;
     }
