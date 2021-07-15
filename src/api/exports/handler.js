@@ -17,6 +17,7 @@ class ExportsHandler {
       const { playlistId } = request.params;
 
       const message = {
+        userId: request.auth.credentials.id,
         targetEmail: request.payload.targetEmail,
         playlistId,
       };
