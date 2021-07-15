@@ -29,10 +29,10 @@ class PlaylistSongsService {
     return result.rows[0].id;
   }
 
-  async getPlaylistSongs(id, owner) {
+  async getPlaylistSongs(id) {
     try {
       // mendapatkan catatan dari cache
-      const result = await this._cacheService.get(`playlistSongs:${owner}`);
+      const result = await this._cacheService.get(`playlistSongs:${id}`);
       return JSON.parse(result);
     } catch (error) {
       // bila gagal, diteruskan dengan mendapatkan catatan dari database
@@ -46,7 +46,7 @@ class PlaylistSongsService {
       };
       const result = await this._pool.query(query);
 
-      await this._cacheService.set(`playlistSongs:${owner}`, JSON.stringify(result.rows));
+      await this._cacheService.set(`playlistSongs:${id}`, JSON.stringify(result.rows));
 
       return result.rows;
     }
